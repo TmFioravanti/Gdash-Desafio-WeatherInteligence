@@ -1,0 +1,1 @@
+# Gdash-Desafio-WeatherInteligence
