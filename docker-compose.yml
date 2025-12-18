@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  api:
+    build: ./backend/backend-api
+    container_name: api
+    env_file: .env
+    depends_on:
+      - mongo
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    env_file: .env
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+
+  python-producer:
+    build: ./python-producer
+    container_name: python-producer
+    env_file: .env
+    depends_on:
+      - rabbitmq
+
+  go-worker:
+    build: ./go-worker
+    container_name: go-worker
+    env_file: .env
+    depends_on:
+      - rabbitmq
+      - api
+
+volumes:
+  mongo_data:
